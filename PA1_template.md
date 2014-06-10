@@ -27,7 +27,8 @@ Analysis:
 ### Loading and preprocessing the data
 
 * Load the data
-```{r}
+
+```r
 activity_data <- read.csv("activity.csv",colClasses=c("date"="Date"))
 ```
 * Process/transform the data (if necessary) into a format suitable for this analysis
@@ -37,29 +38,52 @@ activity_data <- read.csv("activity.csv",colClasses=c("date"="Date"))
 For this part of the analysis, I will ignore the missing values in the dataset.
 
 * Here is a histogram of the total number of steps taken each day
-```{r}
+
+```r
 steps_per_day <- tapply(activity_data$steps, activity_data$date, sum, na.rm=TRUE)
 hist(steps_per_day, breaks=20, xlab="Steps per Day", ylab="Frequency",
      main="Histogram of Steps per Day")
 ```
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
 * Here is a report of the mean and median total number of steps taken per day
-```{r}
+
+```r
 mean(steps_per_day)
+```
+
+```
+## [1] 9354
+```
+
+```r
 median(steps_per_day)
+```
+
+```
+## [1] 10395
 ```
 
 ### What is the average daily activity pattern?
 
 * Here is a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
-```{r}
+
+```r
 steps_per_interval <- tapply(activity_data$steps, activity_data$interval, mean, na.rm=TRUE)
 plot(names(steps_per_interval), steps_per_interval, type="l", 
      main="Average Steps per 5-minute Interval",
      xlab="Interval", ylab="Average Number of Steps")
 ```
+
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
 * Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
-```{r}
+
+```r
 names(which.max(steps_per_interval))
+```
+
+```
+## [1] "835"
 ```
 
 ### Imputing missing values
@@ -67,11 +91,17 @@ names(which.max(steps_per_interval))
 Note that there are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data.
 
 * Here is the total number of missing values in the dataset (i.e. the total number of rows with NAs)
-```{r}
+
+```r
 length(which(is.na(activity_data$steps)==TRUE))
 ```
+
+```
+## [1] 2304
+```
 * I will create a new dataset that is equal to the original dataset but with the missing data filled in, using the average of values for that interval over all days.
-```{r}
+
+```r
 imputed_data <- activity_data
 
 for (i in 1:nrow(imputed_data)) {
@@ -85,24 +115,42 @@ for (i in 1:nrow(imputed_data)) {
 }
 ```
 * Here is a histogram of the total number of steps taken each day and a report of the mean and median total number of steps taken per day. These values differ from the estimates from the first part of the analysis. Because missing data was imputed based on the averages, the estimates of the total daily number of steps increased.
-```{r}
+
+```r
 isteps_per_day <- tapply(imputed_data$steps, imputed_data$date, sum, na.rm=TRUE)
 hist(isteps_per_day, breaks=20, xlab="Imputed Steps per Day", ylab="Frequency",
      main="Histogram of Imputed Steps per Day")
+```
 
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
+
+```r
 mean(isteps_per_day)
+```
+
+```
+## [1] 10282
+```
+
+```r
 median(isteps_per_day)
+```
+
+```
+## [1] 10395
 ```
 
 ### Are there differences in activity patterns between weekdays and weekends?
 
 * Adding a new factor variable in the imputed dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
-```{r}
+
+```r
 imputed_data[,4] <- as.factor(imputed_data[,4])
 names(imputed_data)[4] <- "daytype"
 ```
 * Here is a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
-```{r}
+
+```r
 steps_per_weekend <- tapply(imputed_data$steps[imputed_data$daytype == "weekend"], 
                             imputed_data$interval[imputed_data$daytype == "weekend"], 
                             mean, na.rm=TRUE)
@@ -119,3 +167,5 @@ plot(names(steps_per_weekend), steps_per_weekend, type="l", main="Weekends",
 mtext("Average Steps on Weekdays vs. Weekends", side=3, line=1, cex=2, outer=TRUE)  
 box("outer", col="blue")
 ```
+
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
